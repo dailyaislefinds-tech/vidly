@@ -1,0 +1,41 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  name              String?
+  password          String
+  plan              Plan      @default(FREE)
+  videosUsedThisMonth Int     @default(0)
+  monthResetDate    DateTime  @default(now())
+  stripeCustomerId  String?   @unique
+  stripeSubId       String?   @unique
+  createdAt         DateTime  @default(now())
+  videos            Video[]
+}
+
+model Video {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  product   String
+  platform  String
+  style     String
+  script    String   @db.Text
+  hooks     String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+enum Plan {
+  FREE
+  PRO
+}
